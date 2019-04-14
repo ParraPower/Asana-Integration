@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.4.0.js"
+                integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo="
+                crossorigin="anonymous"></script>
+        <script src="http://localhost:29955/asana/asana.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            var client = null;
+            $(document).ready(function () {
+                var intervalId = setInterval(function () {
+                    if (Asana) {
+                        clearInterval(intervalId);
+                        client = createAccess();
+
+                        getUserMe()
+                          .then(function (me) {
+                              // Print out your information
+                              console.log('Hello world! ' + 'My name is ' + me.name + ' and my primary Asana workspace is ' + me.workspaces[0].name + '.');
+
+                              console.log(me);
+
+                              getProjectsByWorkspace(me.workspaces[0].gid)
+                                .then(function (list) {
+                                    list.data.forEach(x => { 
+                                        $("#projects").append("<option value='" + x.gid + "'>" + x.name + "</option>");
+                                    });
+                                });
+                          });
+                    }
+                }, 500);
+            });
+
+            function createAccess() {
+                return Asana.Client.create().useAccessToken('0/67f8a3bc087b879fece6c7f1b5c7b5ab');
+            }
+
+            function getUserMe() {
+                return client.users.me();
+            }
+
+            function getProjectsByWorkspace(workspaceGID) {
+                return client.projects.findAll("workspace = " + workspaceGID);
+            }
+        </script>
+    </head>
+    <body>
+        <!--<div>
+            <div>
+                Login <input type="text" />
+            </div>
+            <div>
+                Passwod <input type="password" />
+            </div>
+        </div>-->
+        Select project: <select id="projects"></select>
+    </body>
+</html>
